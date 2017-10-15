@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TPA.AsynchronousBehavior.ConcurrentProgramming;
 
@@ -8,26 +10,59 @@ namespace ConcurrentProgrammingUnitTest
     [TestClass]
     public class KeyboardUnitTest
     {
-        private Keyboard _keyboard;
-
-        [TestInitialize]
-        public void Init()
-        {
-            _keyboard = new Keyboard();
-        }
 
         [TestMethod]
         public void CheckWhetherKeyboardGeneratesKeystrokes()
         {
-            List<char> chars = new List<char>();
+            using (Keyboard _keyboard = new Keyboard())
+            {
+                List<char> _chars = new List<char>();
+                for (int i = 0; i < 3; i++)
+                    _chars.Add(_keyboard.ReadKeyFromKeyboardBufferAsync().Result);
+                Assert.IsTrue(_chars.Count == 3);
+            }
+        }
 
-            _keyboard.StartTyping();
-            for (int i = 0; i < 3; i++)
-                chars.Add(_keyboard.ReadKeyFromKeyboardBufferAsync().Result);
-            _keyboard.StopTyping();
+        [TestMethod]
+        public void CheckWhetherKeyboardGeneratesKeystrokesUsingAPM()
+        {
+            using (Keyboard _keyboard = new Keyboard())
+            {
+                List<char> _chars = new List<char>();
 
+                for (int i = 0; i < 3; i++)
+                {
+                    IAsyncResult asyncResult = _keyboard.BeginReadKeyFromKeyboardBuffer(null, null);
+                    _chars.Add(_keyboard.EndReadKeyFromKeyboardBuffer(asyncResult));
+                }
 
-            Assert.IsTrue(chars.Count == 3);
+                Assert.IsTrue(_chars.Count == 3);
+            }
+        }
+
+        [TestMethod]
+        public async Task CheckWhetherKeyboardGeneratesKeystrokesUsingEAP()
+        {
+            using (Keyboard _keyboard = new Keyboard())
+            {
+                List<char> _chars = new List<char>();
+                SemaphoreSlim semaphore = new SemaphoreSlim(0);
+
+                _keyboard.ReadKeyFromKeyboardBufferCompleted += (sender, args) =>
+                {
+                    _chars.Add(args.Result);
+                    semaphore.Release();
+                };
+
+                for (int i = 0; i < 3; i++)
+                {
+                    _keyboard.ReadKeyFromKeyboardBufferAsyncUsingEAP();
+                    await semaphore.WaitAsync();
+                }
+
+                Assert.IsTrue(_chars.Count == 3);
+            }
+
         }
     }
 }

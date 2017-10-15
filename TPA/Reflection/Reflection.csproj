@@ -40,6 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Class1.cs" />
+    <Compile Include="Execution\CreateInstance.cs" />
+    <Compile Include="ITraceSource.cs" />
     <Compile Include="LocalizedDescriptionAttribute.cs" />
     <Compile Include="Model\AbstractENum.cs" />
     <Compile Include="Model\AccessLevel.cs" />
@@ -61,6 +64,19 @@
       <Project>{8ba5c9b2-71c5-4f4a-a368-dec60202c544}</Project>
       <Name>AppResources</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="..\ApplicationArchitectureDependency\DependencyValidation1.layerdiagram">
+      <Link>DependencyValidation1.layerdiagram</Link>
+      <Visible>False</Visible>
+    </AdditionalFiles>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\Microsoft.DependencyValidation.Analyzers.0.9.0\analyzers\dotnet\cs\Microsoft.DependencyValidation.Analyzers.resources.dll" />
+    <Analyzer Include="..\packages\Microsoft.DependencyValidation.Analyzers.0.9.0\analyzers\dotnet\Microsoft.DependencyValidation.Analyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
